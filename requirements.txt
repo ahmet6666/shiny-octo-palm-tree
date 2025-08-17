@@ -1,0 +1,17 @@
+python-binance
+pandas
+numpy
+pyarrow
+scipy
+scikit-learn
+lightgbm
+optuna
+torch
+torchvision
+torchaudio
+ta
+mlflow
+streamlit
+pyyaml
+tqdm
+rich

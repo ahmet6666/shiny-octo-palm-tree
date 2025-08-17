@@ -1,0 +1,70 @@
+project:
+  name: "btc_1h_regression"
+  seed: 42
+  timezone: "UTC"
+
+data:
+  symbol: "BTCUSDT"
+  market: "spot"
+  interval: "1h"
+  start_date: "2020-01-01"
+  end_date: "2022-12-31"
+  base_dir: "./veriler"
+  raw_dir: "./veriler/raw"
+  processed_dir: "./veriler/processed"
+  raw_filename: "BTCUSDT_1h_2020-01-01_2022-12-31.parquet"
+  processed_filename: "BTCUSDT_1h_ml.parquet"
+  meta_filename: "meta.json"
+
+preprocess:
+  drop_missing: true
+  resample_to_strict_grid: true
+  features:
+    ohlcv: true
+    rsi: { period: 14 }
+    macd: { fast: 12, slow: 26, signal: 9 }
+    ema: [12, 26, 50, 200]
+    bb:  { period: 20, std: 2.0 }
+    stoch: { k: 14, d: 3 }
+    atr: { period: 14 }
+  target:
+    type: "regression"
+    name: "log_return_t+1"   # ln(Close_t+1 / Close_t)
+  scaling:
+    enabled: true
+    method: "standard"       # standard | robust
+  split:
+    train_ratio: 0.70
+    val_ratio: 0.15
+    test_ratio: 0.15
+
+training:
+  model: "lgbm"              # lgbm | lstm | both
+  lgbm:
+    optuna_trials: 80
+    early_stopping_rounds: 200
+    num_boost_round: 10000
+  lstm:
+    seq_len: 48
+    hidden_size: 64
+    num_layers: 2
+    dropout: 0.2
+    lr: 1e-3
+    batch_size: 256
+    max_epochs: 50
+    early_stopping_patience: 7
+    num_workers: 2
+
+metrics:
+  primary: "r2"              # tek ana metrik
+
+tracking:
+  mlflow:
+    enabled: true
+    tracking_uri: "file:./artifacts/mlruns"
+    experiment_name: "btc_1h_regression"
+
+ui:
+  refresh_every_sec: 1
+  eta_batch_start: 20
+  eta_smoothing_window: 10
