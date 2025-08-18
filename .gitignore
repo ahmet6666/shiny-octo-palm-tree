@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+venv/
+.env
+mlruns/
+veriler/raw/*.parquet
+veriler/processed/*.parquet
+artifacts/models/
+artifacts/logs/
+artifacts/reports/

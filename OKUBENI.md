@@ -1,32 +1,43 @@
-# BTC 1H Regresyon Projesi
+# BTC/USDT 1saatlik Regresyon Hattı
 
-Bu proje, Binance spot piyasasından alınan 1 saatlik BTC/USDT mum verileri ile bir saat sonrasının log getirisini tahmin etmeyi amaçlar.
+Bu depo, Binance Spot piyasasından alınan 1 saatlik mum verileriyle bir sonraki saatin log getirisini tahmin etmek için uçtan uca bir akış sunar. Veri indirme, ön işleme, teknik indikatörler, LightGBM eğitimi ve basit bir Streamlit arayüzü içerir.
 
-## Kurulum
-```
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+## Hızlı Başlangıç
 
-## Komutlar
-```
-python scripts/data_check.py --config configs/config.yaml
-python scripts/download_binance.py --config configs/config.yaml
-python scripts/preprocess.py --config configs/config.yaml
-python scripts/train_lgbm.py --config configs/config.yaml
-python scripts/evaluate.py --config configs/config.yaml
+```bash
+python scripts/make_dirs.py --config configs/config.yaml
+python scripts/run_all.py --config configs/config.yaml
 ```
 
-Dashboard için:
-```
-streamlit run scripts/ui_app.py
+Streamlit arayüzü:
+
+```bash
+streamlit run src/ui_app.py
 ```
 
-## Notlar
-- Veri indirmede Binance rate limitlerine dikkat edin.
-- Zaman damgaları UTC olmalıdır.
-- Eksik mumlar veri setinden çıkarılır.
+Duman testi (son 100 saat):
+
+```bash
+python scripts/smoke_test.py --config configs/config.yaml
+```
+
+## Veri Politikası
+- Tüm zamanlar **UTC** ve sıkı saatlik ızgaraya hizalanır.
+- Eksik mumlar atılır; isteğe bağlı olarak en uzun ardışık segment seçilir.
+- Ham ve işlenmiş veriler `veriler/` altında tutulur.
+
+## Özellikler ve Hedef
+- RSI, MACD, EMA(12/26/50/200), Bollinger Bantları, Stokastik, ATR.
+- Ekstra: log fiyat, 1 saatlik log getiri.
+- Hedef: `next_1h_log_return = ln(close[t+1]/close[t])`.
+
+## MLflow
+Deney takibi varsayılan olarak `mlruns` klasörüne yazılır.
+
+## Sorun Giderme
+- Binance API limitleri: tekrar deneyin veya API anahtarlarını `.env` ile sağlayın.
+- Zaman dilimi hataları: sistem saatinin UTC olduğundan emin olun.
+- Eksik veri: `data_check` adımı kapsamı doğrular.
 
 ## Lisans
 MIT
